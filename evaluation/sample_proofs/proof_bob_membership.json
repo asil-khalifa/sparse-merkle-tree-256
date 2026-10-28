@@ -1,0 +1,15 @@
+{
+  "format": "smt-proof-v1",
+  "type": "membership",
+  "root": "5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396",
+  "user_key": "bob",
+  "key": "81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9",
+  "value_hash": "1e472b39b105d349bcd069c4a711b44a2fffb8e274714bb07ecfff69a9a7f67b",
+  "depth": 2,
+  "bitmask": "c000000000000000000000000000000000000000000000000000000000000000",
+  "siblings": [
+    "31da4f31256f30e4b4f352c676978d67b089f4006ca28289228ed2d99612ceba",
+    "251a7638ddb199f954c69728dc13b06afed745737d58923a16a42221ba08161e"
+  ],
+  "size_bytes": 132
+}

@@ -1,0 +1,227 @@
+
+$ smt --db demo.db init
+created /tmp/smt_demo.db (history on)
+root: 0000000000000000000000000000000000000000000000000000000000000000
+[exit code 0]
+
+$ smt --db demo.db put alice 100
+applied 1 operation(s)
+old root: 0000000000000000000000000000000000000000000000000000000000000000
+new root: e88595db6e2373140c77336108e543dd79e1c6420dff08568b120417c8af88b5
+[exit code 0]
+
+$ smt --db demo.db put bob 250
+applied 1 operation(s)
+old root: e88595db6e2373140c77336108e543dd79e1c6420dff08568b120417c8af88b5
+new root: 5660d49562fc9ec3f328679dd2d7d810ac22aa21125d7965d1b2337c14652058
+[exit code 0]
+
+$ smt --db demo.db put carol 7
+applied 1 operation(s)
+old root: 5660d49562fc9ec3f328679dd2d7d810ac22aa21125d7965d1b2337c14652058
+new root: 973afc726375a2f326e36025b339ef8933b8bb43da8e2a46bd49dc8960ad8f4c
+[exit code 0]
+
+$ smt --db demo.db put dave 4200
+applied 1 operation(s)
+old root: 973afc726375a2f326e36025b339ef8933b8bb43da8e2a46bd49dc8960ad8f4c
+new root: 404b7fc692880ef432a56ecb4cedf123f469d652d37303b1c190b0a01cb9c210
+[exit code 0]
+
+$ smt --db demo.db batch scripts/sample_batch.txt
+applied 4 operation(s)
+old root: 404b7fc692880ef432a56ecb4cedf123f469d652d37303b1c190b0a01cb9c210
+new root: 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396
+[exit code 0]
+
+$ smt --db demo.db root
+5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396
+[exit code 0]
+
+$ smt --db demo.db get bob
+value: 250
+value_hash: 1e472b39b105d349bcd069c4a711b44a2fffb8e274714bb07ecfff69a9a7f67b
+[exit code 0]
+
+$ smt --db demo.db get mallory
+key not found
+[exit code 2]
+
+$ smt --db demo.db stats
+root            : 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396
+versions        : 6
+leaves (keys)   : 6
+internal nodes  : 5
+avg leaf depth  : 2.83333
+max leaf depth  : 4 (logical tree depth is 256)
+stored nodes    : 25 (all versions)
+[exit code 0]
+
+$ smt --db demo.db dump
+2bd806c97f0e00af1a1fc3328fa763a9269723c8db8fac4f93af71db186d6e90  depth=2  value=100
+4c26d9074c27d89ede59270c0ac14b71e071b15239519f75474b2f3ba63481f5  depth=3  value=7
+61ea0803f8853523b777d414ace3130cd4d3f92de2cd7ff8695c337d79c2eeee  depth=4  value=4200
+7cbccb0c4caadf9fcdb51ee457a828cc72a45879831b5b978ae2e2cefc449705  depth=4  value=15
+81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9  depth=2  value=250
+e010fd1ce1acc173e3b4835b7635f8d4600d774869102adb5cb7b5d7895649ba  depth=2  value=1
+6 leaf/leaves
+[exit code 0]
+
+$ smt --db demo.db prove bob --out evaluation/sample_proofs/proof_bob_membership.json
+proof type: membership
+depth: 2, non-empty siblings: 2, size: 132 bytes (uncompressed 256-level proof would be 8259 bytes)
+written to evaluation/sample_proofs/proof_bob_membership.json
+[exit code 0]
+
+$ smt --db demo.db verify evaluation/sample_proofs/proof_bob_membership.json --value 250
+proof type : membership
+key        : 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9
+root       : 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396 (from database /tmp/smt_demo.db)
+depth      : 2, siblings: 2, size: 132 bytes
+result     : VALID -- key is present with the stated value
+[exit code 0]
+
+$ smt --db demo.db verify evaluation/sample_proofs/proof_bob_membership.json --value 251
+proof type : membership
+key        : 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9
+root       : 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396 (from database /tmp/smt_demo.db)
+depth      : 2, siblings: 2, size: 132 bytes
+result     : INVALID -- value does not match the proof's value hash
+[exit code 3]
+
+$ smt --db demo.db prove mallory --out evaluation/sample_proofs/proof_mallory_nonmembership.json
+proof type: non-membership-leaf
+depth: 2, non-empty siblings: 2, size: 164 bytes (uncompressed 256-level proof would be 8259 bytes)
+written to evaluation/sample_proofs/proof_mallory_nonmembership.json
+[exit code 0]
+
+$ smt --db demo.db verify evaluation/sample_proofs/proof_mallory_nonmembership.json
+proof type : non-membership-leaf
+key        : c0a497761b175379ed63397cc980546559faa84ca9cbeede773117c31508b6ac
+root       : 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396 (from database /tmp/smt_demo.db)
+depth      : 2, siblings: 2, size: 164 bytes
+result     : VALID -- key is NOT present in the tree
+[exit code 0]
+
+$ smt --db demo.db prove zed --out evaluation/sample_proofs/proof_zed_nonmembership.json
+proof type: non-membership-leaf
+depth: 2, non-empty siblings: 2, size: 164 bytes (uncompressed 256-level proof would be 8259 bytes)
+written to evaluation/sample_proofs/proof_zed_nonmembership.json
+[exit code 0]
+
+$ smt --db demo.db verify evaluation/sample_proofs/proof_zed_nonmembership.json
+proof type : non-membership-leaf
+key        : ae8f5080a348fbfeb2c776957979728034cdf3eee0160c8667ee66daa8440a48
+root       : 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396 (from database /tmp/smt_demo.db)
+depth      : 2, siblings: 2, size: 164 bytes
+result     : VALID -- key is NOT present in the tree
+[exit code 0]
+
+--- contents of evaluation/sample_proofs/proof_mallory_nonmembership.json ---
+{
+  "format": "smt-proof-v1",
+  "type": "non-membership-leaf",
+  "root": "5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396",
+  "user_key": "mallory",
+  "key": "c0a497761b175379ed63397cc980546559faa84ca9cbeede773117c31508b6ac",
+  "value_hash": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+  "other_key": "e010fd1ce1acc173e3b4835b7635f8d4600d774869102adb5cb7b5d7895649ba",
+  "depth": 2,
+  "bitmask": "c000000000000000000000000000000000000000000000000000000000000000",
+  "siblings": [
+    "31da4f31256f30e4b4f352c676978d67b089f4006ca28289228ed2d99612ceba",
+    "86a9d88f51490ff8bcff472ccd45652defed660ce4c69ee10b6f1bf8b055f15b"
+  ],
+  "size_bytes": 164
+}
+
+--- tampering with the proof (flip one hex digit of a sibling) ---
+
+$ smt --db demo.db verify evaluation/sample_proofs/proof_tampered.json
+proof type : non-membership-leaf
+key        : c0a497761b175379ed63397cc980546559faa84ca9cbeede773117c31508b6ac
+root       : 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396 (from database /tmp/smt_demo.db)
+depth      : 2, siblings: 2, size: 164 bytes
+result     : INVALID -- computed root does not match the expected root
+[exit code 3]
+
+$ smt --db demo.db del bob
+applied 1 operation(s)
+old root: 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396
+new root: 5f4bb8dc46a6c887ef8eee921c7edc0b547911800c354dd42a6e1a14f7b8d4f9
+[exit code 0]
+
+$ smt --db demo.db get bob
+key not found
+[exit code 2]
+
+$ smt --db demo.db prove bob --out evaluation/sample_proofs/proof_bob_after_delete.json
+proof type: non-membership-leaf
+depth: 1, non-empty siblings: 1, size: 132 bytes (uncompressed 256-level proof would be 8259 bytes)
+written to evaluation/sample_proofs/proof_bob_after_delete.json
+[exit code 0]
+
+$ smt --db demo.db verify evaluation/sample_proofs/proof_bob_after_delete.json
+proof type : non-membership-leaf
+key        : 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9
+root       : 5f4bb8dc46a6c887ef8eee921c7edc0b547911800c354dd42a6e1a14f7b8d4f9 (from database /tmp/smt_demo.db)
+depth      : 1, siblings: 1, size: 132 bytes
+result     : VALID -- key is NOT present in the tree
+[exit code 0]
+
+$ smt --db demo.db history
+history: kept (all versions provable)
+v0           0000000000000000000000000000000000000000000000000000000000000000
+v1           e88595db6e2373140c77336108e543dd79e1c6420dff08568b120417c8af88b5
+v2           5660d49562fc9ec3f328679dd2d7d810ac22aa21125d7965d1b2337c14652058
+v3           973afc726375a2f326e36025b339ef8933b8bb43da8e2a46bd49dc8960ad8f4c
+v4           404b7fc692880ef432a56ecb4cedf123f469d652d37303b1c190b0a01cb9c210
+v5           5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396
+v6 (current) 5f4bb8dc46a6c887ef8eee921c7edc0b547911800c354dd42a6e1a14f7b8d4f9
+[exit code 0]
+
+Proving against the historical root v5 = 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396 (bob still present there):
+
+$ smt --db demo.db prove bob --root 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396 --out evaluation/sample_proofs/proof_bob_at_v5.json
+proof type: membership
+depth: 2, non-empty siblings: 2, size: 132 bytes (uncompressed 256-level proof would be 8259 bytes)
+written to evaluation/sample_proofs/proof_bob_at_v5.json
+[exit code 0]
+
+$ smt --db demo.db verify evaluation/sample_proofs/proof_bob_at_v5.json --root 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396 --value 250
+proof type : membership
+key        : 81b637d8fcd2c6da6359e6963113a1170de795e4b725b84d1e0b4cfd9ec58ce9
+root       : 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396 (from --root)
+depth      : 2, siblings: 2, size: 132 bytes
+result     : VALID -- key is present with the stated value
+[exit code 0]
+
+$ smt --db demo.db stats
+root            : 5f4bb8dc46a6c887ef8eee921c7edc0b547911800c354dd42a6e1a14f7b8d4f9
+versions        : 7
+leaves (keys)   : 5
+internal nodes  : 4
+avg leaf depth  : 2.8
+max leaf depth  : 4 (logical tree depth is 256)
+stored nodes    : 26 (all versions)
+[exit code 0]
+
+$ smt --db demo.db prune
+removed 17 unreachable node(s); 9 remain; history cleared
+[exit code 0]
+
+$ smt --db demo.db stats
+root            : 5f4bb8dc46a6c887ef8eee921c7edc0b547911800c354dd42a6e1a14f7b8d4f9
+versions        : 1
+leaves (keys)   : 5
+internal nodes  : 4
+avg leaf depth  : 2.8
+max leaf depth  : 4 (logical tree depth is 256)
+stored nodes    : 9 (all versions)
+[exit code 0]
+
+Historical root no longer provable after prune:
+
+$ smt --db demo.db prove bob --root 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396
+error: SMT: missing node 5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396 (pruned or corrupt store)
+[exit code 1]

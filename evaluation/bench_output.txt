@@ -1,0 +1,64 @@
+Sparse Merkle Tree benchmark (history=off, queries per size=10000, seed=20261028)
+SHA-256 node hash (65-byte input): 0.477 us/hash, 2.09 M hashes/s  [35..]
+
+=== mode=random  N=1000 ===
+insert      :      7.77 us/op  (128740 ops/s, 10.8 hashes/op)
+get         :      0.38 us/op
+update      :      8.23 us/op
+delete      :      5.06 us/op
+prove (mem) :      0.93 us/op   verify:    7.47 us/op
+prove (non) :      0.65 us/op   verify:    4.90 us/op
+membership proof     : 398.2 bytes avg (min 292, max 485) | siblings avg 10.3 max 13 | depth avg 11.2 max 19
+non-membership proof : 392.7 bytes avg (min 292, max 517) | siblings avg 9.6 max 13 | depth avg 9.9 max 14 | kinds: empty=242 leaf=758
+naive 256-sibling proof: 8259 bytes  -> compaction 20.7x (membership), 21.0x (non-membership)
+tree: leaves=1000 internal=1453 avg_depth=11.29 max_depth=19 | store nodes=2453 | RSS=4.6 MB
+
+=== mode=random  N=10000 ===
+insert      :     10.50 us/op  (95235 ops/s, 14.2 hashes/op)
+get         :      0.56 us/op
+update      :     11.98 us/op
+delete      :      6.20 us/op
+prove (mem) :      1.21 us/op   verify:    7.97 us/op
+prove (non) :      1.03 us/op   verify:    6.93 us/op
+membership proof     : 504.9 bytes avg (min 421, max 614) | siblings avg 13.6 max 17 | depth avg 14.6 max 25
+non-membership proof : 496.2 bytes avg (min 389, max 646) | siblings avg 12.9 max 17 | depth avg 13.2 max 19 | kinds: empty=2790 leaf=7210
+naive 256-sibling proof: 8259 bytes  -> compaction 16.4x (membership), 16.6x (non-membership)
+tree: leaves=10000 internal=14489 avg_depth=14.63 max_depth=25 | store nodes=24489 | RSS=15.8 MB
+
+=== mode=random  N=100000 ===
+insert      :     18.66 us/op  (53584 ops/s, 17.5 hashes/op)
+get         :      4.22 us/op
+update      :     24.18 us/op
+delete      :     22.22 us/op
+prove (mem) :      5.48 us/op   verify:   10.16 us/op
+prove (non) :      2.78 us/op   verify:    8.40 us/op
+membership proof     : 611.8 bytes avg (min 517, max 742) | siblings avg 16.9 max 21 | depth avg 18.0 max 30
+non-membership proof : 602.6 bytes avg (min 485, max 742) | siblings avg 16.2 max 20 | depth avg 16.5 max 23 | kinds: empty=2785 leaf=7215
+naive 256-sibling proof: 8259 bytes  -> compaction 13.5x (membership), 13.7x (non-membership)
+tree: leaves=100000 internal=144048 avg_depth=17.94 max_depth=31 | store nodes=244048 | RSS=65.1 MB
+
+=== mode=random  N=1000000 ===
+insert      :     40.46 us/op  (24714 ops/s, 20.8 hashes/op)
+get         :     26.06 us/op
+update      :     96.75 us/op
+delete      :    155.12 us/op
+prove (mem) :     23.37 us/op   verify:   40.49 us/op
+prove (non) :     15.09 us/op   verify:   26.33 us/op
+membership proof     : 718.7 bytes avg (min 614, max 871) | siblings avg 20.3 max 25 | depth avg 21.3 max 33
+non-membership proof : 709.8 bytes avg (min 582, max 839) | siblings avg 19.6 max 23 | depth avg 19.8 max 26 | kinds: empty=2781 leaf=7219
+naive 256-sibling proof: 8259 bytes  -> compaction 11.5x (membership), 11.6x (non-membership)
+tree: leaves=1000000 internal=1442085 avg_depth=21.26 max_depth=42 | store nodes=2442085 | RSS=528.8 MB
+
+=== mode=adversarial-200bit-prefix  N=1000 ===
+insert      :    326.74 us/op  (3061 ops/s, 210.6 hashes/op)
+get         :      7.45 us/op
+update      :    475.19 us/op
+delete      :    382.89 us/op
+prove (mem) :      4.90 us/op   verify:  204.22 us/op
+prove (non) :      6.50 us/op   verify:  197.85 us/op
+membership proof     : 424.4 bytes avg (min 349, max 511) | siblings avg 10.3 max 13 | depth avg 211.2 max 217
+non-membership proof : 414.9 bytes avg (min 317, max 510) | siblings avg 9.6 max 13 | depth avg 209.9 max 216 | kinds: empty=277 leaf=723
+naive 256-sibling proof: 8259 bytes  -> compaction 19.5x (membership), 19.9x (non-membership)
+tree: leaves=1000 internal=1612 avg_depth=211.24 max_depth=221 | store nodes=2612 | RSS=442.2 MB
+
+CSV written to evaluation/bench_results.csv

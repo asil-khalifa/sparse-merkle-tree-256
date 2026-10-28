@@ -1,0 +1,16 @@
+{
+  "format": "smt-proof-v1",
+  "type": "non-membership-leaf",
+  "root": "5be5ad11a7a5732d9e6526b5df025eab306219e95dadbb40f95d2a0f359fe396",
+  "user_key": "mallory",
+  "key": "c0a497761b175379ed63397cc980546559faa84ca9cbeede773117c31508b6ac",
+  "value_hash": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+  "other_key": "e010fd1ce1acc173e3b4835b7635f8d4600d774869102adb5cb7b5d7895649ba",
+  "depth": 2,
+  "bitmask": "c000000000000000000000000000000000000000000000000000000000000000",
+  "siblings": [
+    "01da4f31256f30e4b4f352c676978d67b089f4006ca28289228ed2d99612ceba",
+    "86a9d88f51490ff8bcff472ccd45652defed660ce4c69ee10b6f1bf8b055f15b"
+  ],
+  "size_bytes": 164
+}

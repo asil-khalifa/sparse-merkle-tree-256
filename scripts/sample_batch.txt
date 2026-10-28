@@ -1,0 +1,5 @@
+# sample batch file: one operation per line
+put erin 15
+put frank 999
+put grace 1
+del frank
