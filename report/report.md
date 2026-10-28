@@ -1,9 +1,9 @@
 %%space 3
 %%title Optimized 256-level Sparse Merkle Tree with Compact Non-Membership Proofs for State Databases
 %%space 0.6
-%%sub CSPE71 Advanced Cryptography — Mini Project Report
+%%sub CSPE71 Advanced Cryptography – Mini Project Report
 %%space 0.4
-%%sub **ASIL KHALIFA** — Roll No. **106123015**
+%%sub **ASIL KHALIFA** – Roll No. **106123015**
 %%sub VII Semester B.Tech (CSE), Academic Year 2026–27
 %%sub Department of Computer Science and Engineering
 %%sub National Institute of Technology Tiruchirappalli
@@ -21,7 +21,7 @@ A Sparse Merkle Tree (SMT) over 256-bit keys lets a database commit to its entir
 
 # 1. Introduction
 
-Blockchains, certificate-transparency logs, and other verifiable databases need an *authenticated dictionary*: a data structure that commits to a mapping from keys to values with one short digest, such that a prover holding the data can convince a verifier holding only the digest of individual facts about the mapping. Membership facts ("account A has balance 100") are the familiar case. Equally important, and historically harder, are *non-membership* facts: a light client must be convinced that an account does not exist, that a nullifier has not yet been spent, that a certificate has not been revoked, or that a name has not been registered — all without downloading the state.
+Blockchains, certificate-transparency logs, and other verifiable databases need an *authenticated dictionary*: a data structure that commits to a mapping from keys to values with one short digest, such that a prover holding the data can convince a verifier holding only the digest of individual facts about the mapping. Membership facts ("account A has balance 100") are the familiar case. Equally important, and historically harder, are *non-membership* facts: a light client must be convinced that an account does not exist, that a nullifier has not yet been spent, that a certificate has not been revoked, or that a name has not been registered – all without downloading the state.
 
 A **Sparse Merkle Tree** (SMT) answers both kinds of query with a uniform mechanism. It is a complete binary Merkle tree whose leaf index is the key itself: with 256-bit keys the tree has 2^256 leaves, almost all of which are empty. The position of every key is fixed, so "key K is absent" is simply "the leaf at position K is empty", and that can be proven exactly like membership. The price of this elegance, in the naive construction, is that every operation walks 256 levels and every proof carries 256 sibling hashes.
 
@@ -129,7 +129,7 @@ input: proof (kind, depth, bitmask, siblings[], V, K'), trusted root R, queried 
 
 The verifier uses the *queried* key's bits for the left/right decisions, so a proof is bound to the key it was asked for. For `membership` the verifier also checks `SHA-256(value) == V`.
 
-**Size.** The compact binary encoding is `1 (kind) + 2 (depth) + 32 (key) + {0 | 32 | 64} (terminal data) + ceil(depth/8) (bitmask) + 32·s` bytes, where `s` is the number of non-empty siblings. Since `depth ≤ 256` and `s ≤ depth`, the size is at most 1 + 2 + 32 + 64 + 32 + 8192 = **8,323 bytes** — the constant bound. For N random keys `s ≈ log2 N + 0.3` (measured), so the expected size is about 32·log2 N + 100 bytes, i.e. **O(log N)**: 393 bytes at N = 10^3 and 710 bytes at N = 10^6 for non-membership proofs. Crucially, compaction decouples proof *size* from tree *depth*: even on adversarial keys that push leaves to depth 211, only ~10 siblings are non-empty, and the proof stays near 420 bytes (Section 6.4).
+**Size.** The compact binary encoding is `1 (kind) + 2 (depth) + 32 (key) + {0 | 32 | 64} (terminal data) + ceil(depth/8) (bitmask) + 32·s` bytes, where `s` is the number of non-empty siblings. Since `depth ≤ 256` and `s ≤ depth`, the size is at most 1 + 2 + 32 + 64 + 32 + 8192 = **8,323 bytes** – the constant bound. For N random keys `s ≈ log2 N + 0.3` (measured), so the expected size is about 32·log2 N + 100 bytes, i.e. **O(log N)**: 393 bytes at N = 10^3 and 710 bytes at N = 10^6 for non-membership proofs. Crucially, compaction decouples proof *size* from tree *depth*: even on adversarial keys that push leaves to depth 211, only ~10 siblings are non-empty, and the proof stays near 420 bytes (Section 6.4).
 
 The proof also has a JSON form (used by the CLI) that carries the same fields plus the root it was generated for and the original user key for readability.
 
@@ -138,7 +138,7 @@ The proof also has a JSON form (used by the CLI) that carries the same fields pl
 Nodes are stored in a `NodeStore` keyed by their own hash (content-addressed). The provided backend is an in-memory hash map; the interface is four calls (`find`, `put`, `erase`, `for_each`) so that a LevelDB/RocksDB backend can be substituted without touching the tree logic. Content addressing yields:
 
 - **Versioning.** Every `put`/`remove` produces a new root while leaving old nodes intact; any historical root remains fully queryable and provable (`prove_at(store, old_root, key)`), exactly as a blockchain node serves proofs for past blocks. The CLI records every committed root in a history list.
-- **Garbage collection.** With `keep_history = false` the nodes replaced along the updated path are released immediately (they are referenced only by the previous version), so the store holds exactly the live nodes of the current tree — a property asserted after every operation in the tests. With history on, `prune(roots)` performs a mark-and-sweep from the roots to keep and deletes everything else.
+- **Garbage collection.** With `keep_history = false` the nodes replaced along the updated path are released immediately (they are referenced only by the previous version), so the store holds exactly the live nodes of the current tree – a property asserted after every operation in the tests. With history on, `prune(roots)` performs a mark-and-sweep from the roots to keep and deletes everything else.
 - **Persistence.** The CLI serialises the root history and the node set to a single file (`smt.db`); the format is a flat list of `(hash, kind, flags, 64 bytes, [value])` records.
 
 Leaf nodes carry the raw value bytes as an attachment (the hash commits only to `SHA-256(value)`), so a lookup returns the value and a membership proof can be checked against the actual value.
@@ -167,7 +167,7 @@ Because the structure is a function of the key set, a prover cannot maintain two
 
 ## 4.4 Adversarial keys and denial of service
 
-Operation cost and the verifier's hashing cost are proportional to leaf depth, which is `1 + LCP` with the nearest key. If users could pick raw paths, an attacker could insert keys sharing a 250-bit prefix, forcing ~250 hashes per operation. Deriving the path as `SHA-256(user key)` makes a `p`-bit shared prefix cost about 2^p hash evaluations to find, so in practice depths stay near log2 N. Even in the worst case the data structure remains correct, and — thanks to compaction — proof *sizes* remain small; only CPU time degrades, and it is bounded by 256 hashes (~0.2 ms) per operation. Section 6.4 measures this case directly.
+Operation cost and the verifier's hashing cost are proportional to leaf depth, which is `1 + LCP` with the nearest key. If users could pick raw paths, an attacker could insert keys sharing a 250-bit prefix, forcing ~250 hashes per operation. Deriving the path as `SHA-256(user key)` makes a `p`-bit shared prefix cost about 2^p hash evaluations to find, so in practice depths stay near log2 N. Even in the worst case the data structure remains correct, and – thanks to compaction – proof *sizes* remain small; only CPU time degrades, and it is bounded by 256 hashes (~0.2 ms) per operation. Section 6.4 measures this case directly.
 
 ## 4.5 What the proofs reveal
 
@@ -190,7 +190,7 @@ The implementation is about 2,700 lines of C++17 (library, CLI, tests and benchm
 | `tests/` | 23 unit tests, naive reference oracle (`reference_smt.hpp`), Python cross-check |
 | `bench/` | benchmark harness and chart script |
 
-**The `smt` CLI** exposes the tree as a small versioned state database: `init`, `put`, `del`, `get`, `batch`, `root`, `history`, `prove` (membership or non-membership, to a JSON file), `verify` (offline — only the proof file and a trusted root are needed), `dump`, `stats`, and `prune`. Exit codes distinguish *valid*, *invalid*, and *not found* so the tool can be scripted. A complete transcript is included as `evaluation/sample_cli_session.txt`; an excerpt:
+**The `smt` CLI** exposes the tree as a small versioned state database: `init`, `put`, `del`, `get`, `batch`, `root`, `history`, `prove` (membership or non-membership, to a JSON file), `verify` (offline – only the proof file and a trusted root are needed), `dump`, `stats`, and `prune`. Exit codes distinguish *valid*, *invalid*, and *not found* so the tool can be scripted. A complete transcript is included as `evaluation/sample_cli_session.txt`; an excerpt:
 
 ```
 $ smt --db demo.db prove mallory --out proof_mallory_nonmembership.json
@@ -255,7 +255,7 @@ Membership proofs behave identically (398 → 719 bytes average, 10.3 → 20.3 s
 
 ## 6.4 Adversarial keys
 
-To test the worst case, 1,000 keys were forced to share a 200-bit prefix, which the single-leaf rule cannot absorb: leaves sit at depth 211 on average (max 221). Inserts then cost 327 µs (211 hashes) and verification 198 µs — the price of hashing 200 extra levels, still bounded by 256 — but because the 200 chain siblings are all empty, the proofs contain only 10.3 non-empty siblings and average 424 bytes, essentially the same as for random keys. This confirms that the bitmask compaction, not merely the collapse rule, is what keeps proofs small, and that the 8,323-byte bound is never approached in practice.
+To test the worst case, 1,000 keys were forced to share a 200-bit prefix, which the single-leaf rule cannot absorb: leaves sit at depth 211 on average (max 221). Inserts then cost 327 µs (211 hashes) and verification 198 µs – the price of hashing 200 extra levels, still bounded by 256 – but because the 200 chain siblings are all empty, the proofs contain only 10.3 non-empty siblings and average 424 bytes, essentially the same as for random keys. This confirms that the bitmask compaction, not merely the collapse rule, is what keeps proofs small, and that the 8,323-byte bound is never approached in practice.
 
 ![Figure 4. Adversarial versus random keys at N = 1,000: depth (hashing cost) rises twenty-fold, the number of siblings transmitted and the proof size do not.](evaluation/fig_adversarial.png)
 
@@ -281,7 +281,7 @@ To test the worst case, 1,000 keys were forced to share a 200-bit prefix, which 
 
 # 8. Conclusion
 
-The project delivers a complete, tested, dependency-free C++17 implementation of an optimized 256-level Sparse Merkle Tree for state databases. By never materialising empty subtrees, floating single leaves up, and transmitting only non-empty siblings behind a presence bitmask, it reduces every operation and every proof from O(256) to O(log N) while keeping the proof size under a fixed 8,323-byte constant. Non-membership proofs — the primary requirement — are produced by the same walk as membership proofs and are sound under collision resistance of SHA-256 with RFC 6962 domain separation. Content-addressed storage makes the tree a versioned state database in which any historical root can be proven against, and garbage collection keeps the live set minimal. Measurements up to one million keys show 710-byte non-membership proofs generated in 15 µs and verified in 26 µs, with 25,000 single-core inserts per second, and the adversarial experiment shows that proof size stays flat even when depth is forced to over 200.
+The project delivers a complete, tested, dependency-free C++17 implementation of an optimized 256-level Sparse Merkle Tree for state databases. By never materialising empty subtrees, floating single leaves up, and transmitting only non-empty siblings behind a presence bitmask, it reduces every operation and every proof from O(256) to O(log N) while keeping the proof size under a fixed 8,323-byte constant. Non-membership proofs – the primary requirement – are produced by the same walk as membership proofs and are sound under collision resistance of SHA-256 with RFC 6962 domain separation. Content-addressed storage makes the tree a versioned state database in which any historical root can be proven against, and garbage collection keeps the live set minimal. Measurements up to one million keys show 710-byte non-membership proofs generated in 15 µs and verified in 26 µs, with 25,000 single-core inserts per second, and the adversarial experiment shows that proof size stays flat even when depth is forced to over 200.
 
 # References
 
@@ -296,7 +296,7 @@ The project delivers a complete, tested, dependency-free C++17 implementation of
 9. NIST, "Secure Hash Standard (SHS)," FIPS PUB 180-4, 2015.
 10. D. Boneh and V. Shoup, *A Graduate Course in Applied Cryptography*, Chapter 8 (collision-resistant hashing and Merkle trees).
 
-# Appendix A — Building and running
+# Appendix A – Building and running
 
 ```
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j
@@ -307,9 +307,9 @@ bash scripts/run_all.sh                 # everything above, regenerating evaluat
 python3 tests/reference_check.py        # language-independent check of the hashing spec
 ```
 
-# Appendix B — Sample non-membership proof (JSON)
+# Appendix B – Sample non-membership proof (JSON)
 
-Generated for the absent key `mallory` in the demonstration database (`evaluation/sample_proofs/proof_mallory_nonmembership.json`). The walk ended after two levels at the leaf of a different key, so the proof carries that leaf's key and value hash plus two non-empty siblings — 164 bytes in binary form versus 8,259 for the naive proof.
+Generated for the absent key `mallory` in the demonstration database (`evaluation/sample_proofs/proof_mallory_nonmembership.json`). The walk ended after two levels at the leaf of a different key, so the proof carries that leaf's key and value hash plus two non-empty siblings – 164 bytes in binary form versus 8,259 for the naive proof.
 
 ```
 {
@@ -330,7 +330,7 @@ Generated for the absent key `mallory` in the demonstration database (`evaluatio
 }
 ```
 
-# Appendix C — Contents of the submission archive
+# Appendix C – Contents of the submission archive
 
 ```
 106123015_MiniProject/

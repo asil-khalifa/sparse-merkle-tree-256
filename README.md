@@ -1,6 +1,6 @@
 # Optimized 256-level Sparse Merkle Tree with Compact Non-Membership Proofs
 
-**CSPE71 Advanced Cryptography — Mini Project**
+**CSPE71 Advanced Cryptography – Mini Project**
 National Institute of Technology Tiruchirappalli, Department of CSE
 VII Semester B.Tech (CSE), Academic Year 2026–27
 
